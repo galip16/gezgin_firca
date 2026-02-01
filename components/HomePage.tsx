@@ -7,6 +7,7 @@ import { useCart } from "@/lib/store/cart"
 import ProductCard from "./ProductCard"
 import FilterPanel from "./FilterPanel"
 import FloatingCartButton from "./FloatingCartButton"
+import FloatingContactButton from "./FloatingContactButton"
 
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -55,7 +56,9 @@ export default function HomePage() {
           <p className="col-span-full text-center text-gray-500 mt-4">Ürün bulunamadı</p>
         )}
       </div>
-            <FloatingCartButton />
+      <FloatingCartButton />
+
+      <FloatingContactButton />
 
     </div>
   )

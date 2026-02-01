@@ -11,7 +11,7 @@ export default function FloatingCartButton() {
   return (
     <Link
       href="/cart"
-      className="fixed bottom-0 right-6 z-50 bg-amber-600 hover:bg-amber-700 text-white p-4 rounded-full shadow-lg transition"
+      className="fixed bottom-4 right-6 z-50 bg-amber-600 hover:bg-amber-700 text-white p-4 rounded-full shadow-lg transition"
     >
       🧺
       {count > 0 && (
