@@ -51,10 +51,10 @@ export default function AdminProductForm() {
     <div className="max-w-xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4 inline-block">Yeni Ürün Ekle</h1>
        <Link
-        href="/"
+        href="/admin"
         className="text-amber-600 hover:underline text-sm absolute right-0 me-12"
       >
-        ← Ana sayfaya dön
+        ← Admin Panel
       </Link>
       {success && <p className="text-green-600 mb-2">{success}</p>}
       {error && <p className="text-red-600 mb-2">{error}</p>}

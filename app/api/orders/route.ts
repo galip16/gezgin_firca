@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { supabaseServer } from "@/lib/supabase/server"
 import { ProductInCart } from "@/lib/types"
+import { sendTelegramMessage } from "@/lib/telegram"
 
 type CreateOrderBody = {
   items: ProductInCart[]
@@ -62,6 +63,16 @@ export async function POST(req: Request) {
       console.error("Order items insert error:", itemsError)
       return NextResponse.json({ error: "Sipariş ürünleri kaydedilemedi" }, { status: 500 })
     }
+
+    await sendTelegramMessage(`
+📦 Yeni Sipariş!
+
+Müşteri: ${customer_name}
+Telefon: ${customer_phone}
+
+Toplam: ${total} ₺
+Sipariş No: ${order.id}
+`)
 
     return NextResponse.json({ success: true, orderId: order.id })
 
