@@ -48,10 +48,10 @@ export async function POST(req: Request) {
     // order_items
     const orderItems = items.map((item) => ({
       order_id: order.id,
-      product_name: item.name,
+      product_id: item.id,
+      name: item.name,
       price: item.price,
       quantity: item.quantity,
-      product_id: item.id,
     }))
 
     const { error: itemsError } = await supabaseServer

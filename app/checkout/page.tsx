@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useCart } from "@/lib/store/cart"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 export default function CheckoutPage() {
     const { items, clear } = useCart()
@@ -53,7 +54,9 @@ export default function CheckoutPage() {
             let data
             try {
                 data = await res.json()
-            } catch {
+
+            } catch (e) {
+
                 data = { error: "Sunucudan geçerli yanıt gelmedi" }
             }
 
@@ -63,6 +66,8 @@ export default function CheckoutPage() {
                 clear()
             }
             else {
+
+
                 setError(data.error || "Sipariş oluşturulamadı")
             }
         } catch (err) {
@@ -82,7 +87,7 @@ export default function CheckoutPage() {
                     onClick={() => router.push("/")}
                     className="mt-2 w-full bg-amber-600 text-white py-2 rounded hover:bg-amber-700"
                 >
-                    Ana Sayfaya Dön
+                    Ana sayfaya dön
                 </button>
             </div>
         )
@@ -90,9 +95,19 @@ export default function CheckoutPage() {
 
     return (
         <div className="max-w-xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">🧾 Checkout</h1>
+            <div className="flex items-center p-6" >
+                <h1 className="text-2xl font-bold ">🧾 Özet</h1>
 
-            {error && <p className="text-red-600 mb-2">{error}</p>}
+                {error && <p className="text-red-600 mb-2">{error}</p>}
+
+                <Link
+                    href="/"
+                    className="text-amber-600 hover:underline text-sm absolute right-0 me-12"
+                >
+                    ← Ana sayfaya dön
+                </Link>
+            </div>
+
 
             <input
                 placeholder="Ad Soyad *"

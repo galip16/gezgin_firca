@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
       const { data: uploadData, error: uploadError } = await supabaseAdmin
         .storage
-        .from("products-images")
+        .from("product-images")
         .upload(`products/${fileName}`, uint8Array, { contentType: file.type })
 
       if (uploadError) {
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
       const { data } = supabaseAdmin
         .storage
-        .from("products-images")
+        .from("product-images")
         .getPublicUrl(uploadData.path)
 
       imageUrl = data.publicUrl
