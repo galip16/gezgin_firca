@@ -1,29 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import LoginForm from "@/components/LoginForm"
 import Link from "next/link"
 
 export default function AdminDashboard() {
-    const [loggedIn, setLoggedIn] = useState(false)
 
-    // Sayfa yüklendiğinde giriş durumunu kontrol et
-    useEffect(() => {
-        const auth = localStorage.getItem("isAdmin")
-        if (auth === "true") setLoggedIn(true)
-    }, [])
 
-    const handleLogin = () => {
-        setLoggedIn(true)
-        localStorage.setItem("isAdmin", "true")
-    }
 
-    const handleLogout = () => {
-        setLoggedIn(false)
-        localStorage.removeItem("isAdmin")
-    }
-
-    return loggedIn ? (
+    return (
         <div className="min-h-screen bg-slate-50 font-sans antialiased text-slate-900">
             {/* Üst Bar */}
             <nav className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10 shadow-sm">
@@ -33,12 +16,7 @@ export default function AdminDashboard() {
                     </div>
                     <h1 className="text-xl font-bold tracking-tight text-slate-800">Kontrol Paneli</h1>
                 </div>
-                <button 
-                    onClick={handleLogout}
-                    className="px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100"
-                >
-                    Güvenli Çıkış
-                </button>
+
             </nav>
 
             <main className="max-w-6xl mx-auto p-8">
@@ -89,15 +67,5 @@ export default function AdminDashboard() {
                 </div>
             </main>
         </div>
-    ) : (
-        <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
-            <div className="w-full max-w-100 bg-white rounded-3xl shadow-2xl p-10 border border-slate-200">
-                <div className="text-center mb-8">
-                    <h2 className="text-2xl font-black text-slate-800 uppercase tracking-widest">Giriş Yap</h2>
-                    <p className="text-slate-400 text-sm mt-2 font-medium">Lütfen admin yetkilerinizi kullanın.</p>
-                </div>
-                <LoginForm onLogin={handleLogin} />
-            </div>
-        </div>
-    )
+    ) 
 }

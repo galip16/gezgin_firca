@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { supabaseServer } from "@/lib/supabase/server"
 import { ProductInCart } from "@/lib/types"
 import { sendTelegramMessage } from "@/lib/telegram"
+import { rateLimit } from "@/lib/rate-limit"
 
 type CreateOrderBody = {
   items: ProductInCart[]
@@ -14,7 +15,18 @@ type CreateOrderBody = {
 }
 
 export async function POST(req: Request) {
+
   try {
+const ordersUrl = "https://gezgin-firca.vercel.app/admin/orders";
+    const ip = req.headers.get("x-forwarded-for") || "unknown"
+
+    if (!rateLimit(ip)) {
+      return NextResponse.json(
+        { error: "Çok fazla istek gönderildi" },
+        { status: 429 }
+      )
+    }
+
     const body: CreateOrderBody = await req.json()
     const { items, customer_name, customer_phone, customer_address, company_name, note, total } = body
 
@@ -72,6 +84,7 @@ Telefon: ${customer_phone}
 
 Toplam: ${total} ₺
 Sipariş No: ${order.id}
+Siparise git: ${ordersUrl}/${order.id}
 `)
 
     return NextResponse.json({ success: true, orderId: order.id })
