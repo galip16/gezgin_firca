@@ -50,7 +50,7 @@ export default function FloatingContactButton() {
                 onClick={() => setOpen(!open)}
                 className="flex items-center gap-2 bg-[#0A4F8E] text-white px-4 py-3 rounded-full shadow-lg hover:scale-105 transition"
             >
-                💬 Yardım
+                💬
             </button>
 
         </div>

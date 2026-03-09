@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.gezgin-firca.vercel.app"
+        }
+      ],
+      "destination": "https://gezgin-firca.vercel.app/$1",
+      "permanent": true
+    }
+  ]
+}
