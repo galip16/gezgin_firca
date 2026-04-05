@@ -8,6 +8,7 @@ import ProductCard from "./ProductCard"
 import FilterPanel from "./FilterPanel"
 import FloatingContactButton from "./FloatingContactButton"
 import CartButton from "./CartButton"
+import Link from "next/link"
 
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -29,7 +30,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-50 p-4">
 
       {/* --- Logo Alanı --- */}
-      <div className="flex flex-col items-center mb-4 pt-4 select-none">
+      <Link href="/" className="flex flex-col items-center mb-4 pt-4 select-none cursor-pointer">
         <div className="flex items-center tracking-tighter">
           <span className="text-4xl sm:text-5xl font-extrabold text-[#0A4F8E] lowercase">
             gezgin
@@ -39,26 +40,27 @@ export default function HomePage() {
           </span>
         </div>
         <div className="h-1 w-24 bg-linear-to-r from-[#0A4F8E] to-[#008080] mt-2 rounded-full opacity-50" />
-      </div>
+      </Link>
 
       {/* Filtre + Arama alanı */}
       <div className="flex flex-wrap flex-row items-start sm:items-center gap-4 mb-4 max-w-6xl mx-auto">
         <input
+          id="search"
           type="text"
           placeholder="Ürün ara..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0A4F8E]/20 border-gray-300"
+          className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0A4F8E]/20 border-black"
         />
 
 
         <div className="flex gap-4 m-auto" >
           <CartButton />
-        <FilterPanel
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-          onClear={() => { setSelectedCategory("all"); setSearchTerm("") }}
-        />
+          <FilterPanel
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            onClear={() => { setSelectedCategory("all"); setSearchTerm("") }}
+          />
         </div>
       </div>
 

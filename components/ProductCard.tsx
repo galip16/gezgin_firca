@@ -12,7 +12,6 @@ export default function ProductCard({ product, onAdd }: Props) {
   const [quantity, setQuantity] = useState(1)
 
   return (
-    // p-4 yerine p-2 (mobilde), font boyutlarını küçülttük
     <div className="border rounded-lg p-2 sm:p-4 flex flex-col gap-1 sm:gap-2 bg-white shadow-sm">
       {product.image_url && (
         <img
@@ -38,7 +37,7 @@ export default function ProductCard({ product, onAdd }: Props) {
       <div className="flex items-center gap-2 mt-1">
         <button
           onClick={() => onAdd({ ...product, quantity })}
-          className="w-full bg-amber-600 text-white py-1.5 rounded text-xs sm:text-sm font-medium hover:bg-amber-700 transition-colors"
+          className="w-full bg-amber-600 text-white py-1.5 rounded font-medium hover:bg-amber-700 transition-colors"
         >
           Sepete Ekle
         </button>

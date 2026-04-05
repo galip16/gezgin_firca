@@ -1,18 +1,20 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { CATEGORY_LABELS } from "@/lib/types"
 import Link from "next/link"
 
 export default function AdminProductForm() {
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
-  const [price, setPrice] = useState<number>(0)
+  const [price, setPrice] = useState<string>("")
   const [unit, setUnit] = useState("")
   const [category, setCategory] = useState("")
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [success, setSuccess] = useState("")
   const [error, setError] = useState("")
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,18 +35,19 @@ export default function AdminProductForm() {
     const data = await res.json()
 
     if (res.ok) {
-      setSuccess("Ürün başarıyla eklendi")
-      setError("")
-      setName("")
-      setDescription("")
-      setPrice(0)
-      setUnit("")
-      setCategory("")
-      setImageFile(null)
-    } else {
-      setError(data.error || "Bilinmeyen hata")
-      setSuccess("")
-    }
+  setSuccess("Ürün başarıyla eklendi")
+  setError("")
+  setName("")
+  setDescription("")
+  setPrice(0)
+  setUnit("")
+  setCategory("")
+  setImageFile(null)
+
+  if (fileInputRef.current) {
+    fileInputRef.current.value = ""
+  }
+}
   }
 
   return (
@@ -52,7 +55,7 @@ export default function AdminProductForm() {
       <h1 className="text-2xl font-bold mb-4 inline-block">Yeni Ürün Ekle</h1>
        <Link
         href="/admin"
-        className="text-amber-600 hover:underline text-sm absolute right-0 me-12"
+        className="text-amber-600 hover:underline text-sm absolute top-4 right-0 me-12"
       >
         ← Admin Panel
       </Link>
@@ -75,7 +78,7 @@ export default function AdminProductForm() {
           className="border p-2 rounded"
         />
         <input
-          type="number"
+          type="text"
           placeholder="Fiyat"
           value={price}
           onChange={(e) => setPrice(Number(e.target.value))}
@@ -105,6 +108,8 @@ export default function AdminProductForm() {
           accept="image/*"
           onChange={(e) => e.target.files && setImageFile(e.target.files[0])}
           className="border p-2 rounded"
+          ref={fileInputRef}
+
         />
         <button
           type="submit"

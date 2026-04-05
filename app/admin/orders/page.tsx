@@ -17,7 +17,7 @@ export default async function OrdersPage() {
             <h1 className="text-2xl font-bold mb-6">📦 Siparişler</h1>
             <Link
                 href="/admin"
-                className="text-amber-600 hover:underline text-sm absolute right-0 me-12"
+                className="text-amber-600 hover:underline text-sm absolute top-4 right-0 me-12"
             >
                 ← Admin Panel
             </Link>
