@@ -39,7 +39,7 @@ export default function AdminProductForm() {
   setError("")
   setName("")
   setDescription("")
-  setPrice(0)
+  setPrice("")
   setUnit("")
   setCategory("")
   setImageFile(null)
@@ -81,7 +81,7 @@ export default function AdminProductForm() {
           type="text"
           placeholder="Fiyat"
           value={price}
-          onChange={(e) => setPrice(Number(e.target.value))}
+          onChange={(e) => setPrice((e.target.value))}
           required
           className="border p-2 rounded"
         />
