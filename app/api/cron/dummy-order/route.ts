@@ -1,3 +1,4 @@
+import { sendTelegramMessage } from "@/lib/telegram"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
@@ -30,6 +31,7 @@ export async function GET(request: Request) {
       },
       body: JSON.stringify(order),
     })
+    await sendTelegramMessage("Cron çalıştı, test siparişi oluşturuldu!")
 
     return NextResponse.json({ success: true })
   } catch (err) {
