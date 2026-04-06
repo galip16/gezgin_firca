@@ -15,7 +15,7 @@ export default function CartButton() {
     >
       Sepet
       {count > 0 && (
-        <span className="absolute -top-1 -right-1 bg-blue-800 text-xs w-5 h-5 rounded-full flex items-center justify-center">
+        <span className="absolute -top-1 -right-1 bg-blue-800 text-xs w-5 h-5 rounded-full flex items-center justify-center animate-bounce">
           {count}
         </span>
       )}

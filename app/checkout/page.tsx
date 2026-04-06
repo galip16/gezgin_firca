@@ -95,7 +95,7 @@ export default function CheckoutPage() {
     return (
       <div className="max-w-xl mx-auto p-4 text-center">
         <h2 className="text-2xl font-bold mb-4 text-green-600">
-          🎉 Siparişiniz alındı!
+          🎉 Siparişiniz alındı! Sizinle iletişime geçeceğiz..
         </h2>
 
         <p className="mb-4">

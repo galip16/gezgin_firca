@@ -109,7 +109,7 @@ export default function CartPage() {
               onClick={() => router.push("/checkout")}
               className="flex-1 bg-amber-600 text-white py-2 rounded hover:bg-amber-700"
             >
-              Öde
+              Siparis ver
             </button>
           </div>
         </div>
