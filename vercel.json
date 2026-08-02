@@ -1,8 +1,8 @@
 {
   "crons": [
     {
-      "path": "/api/cron/dummy-order",
-      "schedule": "0 9 * * 1"
+      "path": "/api/cron/keepalive",
+      "schedule": "0 9 * * *"
     }
   ]
 }
