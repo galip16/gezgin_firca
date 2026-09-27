@@ -31,7 +31,7 @@ export default function FloatingContactButton() {
                         href="tel:+905376370691"
                         className="flex items-center gap-2 text-sm px-3 py-2 rounded-lg hover:bg-gray-100 transition"
                     >
-                        📞 Telefonla Ara
+                        📞 Telefon
                     </a>
 
                     <a
@@ -40,7 +40,7 @@ export default function FloatingContactButton() {
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 text-sm px-3 py-2 rounded-lg hover:bg-gray-100 transition"
                     >
-                        💬 WhatsApp Yaz
+                        💬 WhatsApp
                     </a>
 
                 </div>
