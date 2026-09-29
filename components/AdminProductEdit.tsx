@@ -12,6 +12,7 @@ type Product = {
   unit: string | null
   category: string
   image_url: string | null
+  is_active: boolean
 }
 
 export default function AdminProductEdit() {
@@ -29,6 +30,8 @@ export default function AdminProductEdit() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [statusChanging, setStatusChanging] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -56,6 +59,20 @@ export default function AdminProductEdit() {
     }
   }
 
+  const clearForm = () => {
+    setSelectedId("")
+    setName("")
+    setDescription("")
+    setPrice("")
+    setUnit("")
+    setCategory("")
+    setImageFile(null)
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
+
   const handleProductSelect = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -70,11 +87,7 @@ export default function AdminProductEdit() {
     )
 
     if (!product) {
-      setName("")
-      setDescription("")
-      setPrice("")
-      setUnit("")
-      setCategory("")
+      clearForm()
       return
     }
 
@@ -136,7 +149,6 @@ export default function AdminProductEdit() {
 
       setSuccess("Ürün başarıyla güncellendi")
 
-      // Listeyi de güncel tut
       await loadProducts()
 
       if (fileInputRef.current) {
@@ -154,6 +166,109 @@ export default function AdminProductEdit() {
       )
     } finally {
       setSaving(false)
+    }
+  }
+
+  // Aktif / Pasif değiştirme
+  const handleToggleActive = async () => {
+    if (!selectedProduct) return
+
+    const newStatus = !selectedProduct.is_active
+
+    try {
+      setStatusChanging(true)
+      setSuccess("")
+      setError("")
+
+      const res = await fetch(
+        "/api/admin/products",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: selectedProduct.id,
+            is_active: newStatus,
+          }),
+        }
+      )
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(
+          data.error || "Ürün durumu değiştirilemedi"
+        )
+      }
+
+      setSuccess(
+        newStatus
+          ? "Ürün tekrar aktif edildi"
+          : "Ürün pasife alındı"
+      )
+
+      await loadProducts()
+    } catch (err) {
+      console.error(err)
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Ürün durumu değiştirilirken hata oluştu"
+      )
+    } finally {
+      setStatusChanging(false)
+    }
+  }
+
+  // Kalıcı silme
+  const handleDelete = async () => {
+    if (!selectedProduct) return
+
+    const confirmed = window.confirm(
+      `"${selectedProduct.name}" ürününü kalıcı olarak silmek istediğinize emin misiniz?\n\nBu işlem geri alınamaz.`
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      setDeleting(true)
+      setSuccess("")
+      setError("")
+
+      const res = await fetch(
+        `/api/admin/products?id=${selectedProduct.id}`,
+        {
+          method: "DELETE",
+        }
+      )
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(
+          data.error || "Ürün silinemedi"
+        )
+      }
+
+      setSuccess("Ürün kalıcı olarak silindi")
+
+      clearForm()
+
+      await loadProducts()
+    } catch (err) {
+      console.error(err)
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Ürün silinirken hata oluştu"
+      )
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -212,12 +327,39 @@ export default function AdminProductEdit() {
                   value={product.id}
                 >
                   {product.name} - {product.price} TL
+                  {!product.is_active
+                    ? " (Pasif)"
+                    : ""}
                 </option>
               ))}
             </select>
           </div>
 
-          {selectedId && (
+          {selectedProduct && (
+            <div className="mb-5">
+              <div
+                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                  selectedProduct.is_active
+                    ? "bg-green-100 text-green-700"
+                    : "bg-slate-100 text-slate-600"
+                }`}
+              >
+                <span
+                  className={`w-2 h-2 rounded-full mr-2 ${
+                    selectedProduct.is_active
+                      ? "bg-green-500"
+                      : "bg-slate-400"
+                  }`}
+                />
+
+                {selectedProduct.is_active
+                  ? "Aktif ürün"
+                  : "Pasif ürün"}
+              </div>
+            </div>
+          )}
+
+          {selectedId && selectedProduct && (
             <form
               onSubmit={handleSubmit}
               className="flex flex-col gap-3"
@@ -287,7 +429,7 @@ export default function AdminProductEdit() {
                 ))}
               </select>
 
-              {selectedProduct?.image_url && (
+              {selectedProduct.image_url && (
                 <div>
                   <p className="text-sm text-slate-500 mb-2">
                     Mevcut görsel
@@ -315,12 +457,54 @@ export default function AdminProductEdit() {
 
               <button
                 type="submit"
-                disabled={saving}
+                disabled={
+                  saving ||
+                  statusChanging ||
+                  deleting
+                }
                 className="bg-amber-600 text-white py-2 rounded hover:bg-amber-700 disabled:opacity-50"
               >
                 {saving
                   ? "Güncelleniyor..."
                   : "Ürünü Güncelle"}
+              </button>
+
+              {/* Ürün durumu */}
+              <button
+                type="button"
+                onClick={handleToggleActive}
+                disabled={
+                  saving ||
+                  statusChanging ||
+                  deleting
+                }
+                className={`py-2 rounded font-medium border disabled:opacity-50 ${
+                  selectedProduct.is_active
+                    ? "border-slate-300 text-slate-700 hover:bg-slate-100"
+                    : "border-green-300 text-green-700 hover:bg-green-50"
+                }`}
+              >
+                {statusChanging
+                  ? "İşlem yapılıyor..."
+                  : selectedProduct.is_active
+                    ? "Ürünü Pasife Al"
+                    : "Ürünü Aktif Et"}
+              </button>
+
+              {/* Kalıcı silme */}
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={
+                  saving ||
+                  statusChanging ||
+                  deleting
+                }
+                className="py-2 rounded font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {deleting
+                  ? "Siliniyor..."
+                  : "Ürünü Kalıcı Olarak Sil"}
               </button>
             </form>
           )}
