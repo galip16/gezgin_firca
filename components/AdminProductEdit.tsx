@@ -31,7 +31,6 @@ export default function AdminProductEdit() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [statusChanging, setStatusChanging] = useState(false)
-  const [deleting, setDeleting] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -47,29 +46,22 @@ export default function AdminProductEdit() {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || "Ürünler alınamadı")
+        throw new Error(
+          data.error || "Ürünler alınamadı"
+        )
       }
 
       setProducts(data.data || [])
     } catch (err) {
       console.error(err)
-      setError("Ürünler yüklenirken hata oluştu")
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Ürünler yüklenirken hata oluştu"
+      )
     } finally {
       setLoading(false)
-    }
-  }
-
-  const clearForm = () => {
-    setSelectedId("")
-    setName("")
-    setDescription("")
-    setPrice("")
-    setUnit("")
-    setCategory("")
-    setImageFile(null)
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
     }
   }
 
@@ -87,7 +79,12 @@ export default function AdminProductEdit() {
     )
 
     if (!product) {
-      clearForm()
+      setName("")
+      setDescription("")
+      setPrice("")
+      setUnit("")
+      setCategory("")
+      setImageFile(null)
       return
     }
 
@@ -169,9 +166,10 @@ export default function AdminProductEdit() {
     }
   }
 
-  // Aktif / Pasif değiştirme
   const handleToggleActive = async () => {
-    if (!selectedProduct) return
+    if (!selectedProduct) {
+      return
+    }
 
     const newStatus = !selectedProduct.is_active
 
@@ -198,7 +196,8 @@ export default function AdminProductEdit() {
 
       if (!res.ok) {
         throw new Error(
-          data.error || "Ürün durumu değiştirilemedi"
+          data.error ||
+            "Ürün durumu değiştirilemedi"
         )
       }
 
@@ -219,56 +218,6 @@ export default function AdminProductEdit() {
       )
     } finally {
       setStatusChanging(false)
-    }
-  }
-
-  // Kalıcı silme
-  const handleDelete = async () => {
-    if (!selectedProduct) return
-
-    const confirmed = window.confirm(
-      `"${selectedProduct.name}" ürününü kalıcı olarak silmek istediğinize emin misiniz?\n\nBu işlem geri alınamaz.`
-    )
-
-    if (!confirmed) {
-      return
-    }
-
-    try {
-      setDeleting(true)
-      setSuccess("")
-      setError("")
-
-      const res = await fetch(
-        `/api/admin/products?id=${selectedProduct.id}`,
-        {
-          method: "DELETE",
-        }
-      )
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        throw new Error(
-          data.error || "Ürün silinemedi"
-        )
-      }
-
-      setSuccess("Ürün kalıcı olarak silindi")
-
-      clearForm()
-
-      await loadProducts()
-    } catch (err) {
-      console.error(err)
-
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Ürün silinirken hata oluştu"
-      )
-    } finally {
-      setDeleting(false)
     }
   }
 
@@ -336,177 +285,156 @@ export default function AdminProductEdit() {
           </div>
 
           {selectedProduct && (
-            <div className="mb-5">
-              <div
-                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                  selectedProduct.is_active
-                    ? "bg-green-100 text-green-700"
-                    : "bg-slate-100 text-slate-600"
-                }`}
-              >
-                <span
-                  className={`w-2 h-2 rounded-full mr-2 ${
+            <>
+              <div className="mb-5">
+                <div
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                     selectedProduct.is_active
-                      ? "bg-green-500"
-                      : "bg-slate-400"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-slate-100 text-slate-600"
                   }`}
+                >
+                  <span
+                    className={`w-2 h-2 rounded-full mr-2 ${
+                      selectedProduct.is_active
+                        ? "bg-green-500"
+                        : "bg-slate-400"
+                    }`}
+                  />
+
+                  {selectedProduct.is_active
+                    ? "Aktif ürün"
+                    : "Pasif ürün"}
+                </div>
+              </div>
+
+              <form
+                onSubmit={handleSubmit}
+                className="flex flex-col gap-3"
+              >
+                <input
+                  type="text"
+                  placeholder="Ürün adı"
+                  value={name}
+                  onChange={(e) =>
+                    setName(e.target.value)
+                  }
+                  required
+                  className="border p-2 rounded"
                 />
 
-                {selectedProduct.is_active
-                  ? "Aktif ürün"
-                  : "Pasif ürün"}
-              </div>
-            </div>
-          )}
+                <textarea
+                  placeholder="Açıklama"
+                  value={description}
+                  onChange={(e) =>
+                    setDescription(e.target.value)
+                  }
+                  className="border p-2 rounded"
+                />
 
-          {selectedId && selectedProduct && (
-            <form
-              onSubmit={handleSubmit}
-              className="flex flex-col gap-3"
-            >
-              <input
-                type="text"
-                placeholder="Ürün adı"
-                value={name}
-                onChange={(e) =>
-                  setName(e.target.value)
-                }
-                required
-                className="border p-2 rounded"
-              />
+                <input
+                  type="text"
+                  placeholder="Fiyat"
+                  value={price}
+                  onChange={(e) =>
+                    setPrice(e.target.value)
+                  }
+                  required
+                  className="border p-2 rounded"
+                />
 
-              <textarea
-                placeholder="Açıklama"
-                value={description}
-                onChange={(e) =>
-                  setDescription(e.target.value)
-                }
-                className="border p-2 rounded"
-              />
+                <input
+                  type="text"
+                  placeholder="Birim (adet, kg...)"
+                  value={unit}
+                  onChange={(e) =>
+                    setUnit(e.target.value)
+                  }
+                  className="border p-2 rounded"
+                />
 
-              <input
-                type="text"
-                placeholder="Fiyat"
-                value={price}
-                onChange={(e) =>
-                  setPrice(e.target.value)
-                }
-                required
-                className="border p-2 rounded"
-              />
-
-              <input
-                type="text"
-                placeholder="Birim (adet, kg...)"
-                value={unit}
-                onChange={(e) =>
-                  setUnit(e.target.value)
-                }
-                className="border p-2 rounded"
-              />
-
-              <select
-                value={category}
-                onChange={(e) =>
-                  setCategory(e.target.value)
-                }
-                className="border p-2 rounded"
-                required
-              >
-                <option value="">
-                  Kategori seçiniz
-                </option>
-
-                {Object.entries(
-                  CATEGORY_LABELS
-                ).map(([key, label]) => (
-                  <option
-                    key={key}
-                    value={key}
-                  >
-                    {label}
+                <select
+                  value={category}
+                  onChange={(e) =>
+                    setCategory(e.target.value)
+                  }
+                  className="border p-2 rounded"
+                  required
+                >
+                  <option value="">
+                    Kategori seçiniz
                   </option>
-                ))}
-              </select>
 
-              {selectedProduct.image_url && (
-                <div>
-                  <p className="text-sm text-slate-500 mb-2">
-                    Mevcut görsel
-                  </p>
+                  {Object.entries(
+                    CATEGORY_LABELS
+                  ).map(([key, label]) => (
+                    <option
+                      key={key}
+                      value={key}
+                    >
+                      {label}
+                    </option>
+                  ))}
+                </select>
 
-                  <img
-                    src={selectedProduct.image_url}
-                    alt={selectedProduct.name}
-                    className="w-32 h-32 object-cover rounded border"
-                  />
-                </div>
-              )}
+                {selectedProduct.image_url && (
+                  <div>
+                    <p className="text-sm text-slate-500 mb-2">
+                      Mevcut görsel
+                    </p>
 
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                onChange={(e) =>
-                  setImageFile(
-                    e.target.files?.[0] || null
-                  )
-                }
-                className="border p-2 rounded"
-              />
+                    <img
+                      src={selectedProduct.image_url}
+                      alt={selectedProduct.name}
+                      className="w-32 h-32 object-cover rounded border"
+                    />
+                  </div>
+                )}
 
-              <button
-                type="submit"
-                disabled={
-                  saving ||
-                  statusChanging ||
-                  deleting
-                }
-                className="bg-amber-600 text-white py-2 rounded hover:bg-amber-700 disabled:opacity-50"
-              >
-                {saving
-                  ? "Güncelleniyor..."
-                  : "Ürünü Güncelle"}
-              </button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={(e) =>
+                    setImageFile(
+                      e.target.files?.[0] || null
+                    )
+                  }
+                  className="border p-2 rounded"
+                />
 
-              {/* Ürün durumu */}
-              <button
-                type="button"
-                onClick={handleToggleActive}
-                disabled={
-                  saving ||
-                  statusChanging ||
-                  deleting
-                }
-                className={`py-2 rounded font-medium border disabled:opacity-50 ${
-                  selectedProduct.is_active
-                    ? "border-slate-300 text-slate-700 hover:bg-slate-100"
-                    : "border-green-300 text-green-700 hover:bg-green-50"
-                }`}
-              >
-                {statusChanging
-                  ? "İşlem yapılıyor..."
-                  : selectedProduct.is_active
-                    ? "Ürünü Pasife Al"
-                    : "Ürünü Aktif Et"}
-              </button>
+                <button
+                  type="submit"
+                  disabled={
+                    saving || statusChanging
+                  }
+                  className="bg-amber-600 text-white py-2 rounded hover:bg-amber-700 disabled:opacity-50"
+                >
+                  {saving
+                    ? "Güncelleniyor..."
+                    : "Ürünü Güncelle"}
+                </button>
 
-              {/* Kalıcı silme */}
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={
-                  saving ||
-                  statusChanging ||
-                  deleting
-                }
-                className="py-2 rounded font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
-              >
-                {deleting
-                  ? "Siliniyor..."
-                  : "Ürünü Kalıcı Olarak Sil"}
-              </button>
-            </form>
+                <button
+                  type="button"
+                  onClick={handleToggleActive}
+                  disabled={
+                    saving || statusChanging
+                  }
+                  className={`py-2 rounded font-medium border disabled:opacity-50 ${
+                    selectedProduct.is_active
+                      ? "border-slate-300 text-slate-700 hover:bg-slate-100"
+                      : "border-green-300 text-green-700 hover:bg-green-50"
+                  }`}
+                >
+                  {statusChanging
+                    ? "İşlem yapılıyor..."
+                    : selectedProduct.is_active
+                      ? "Ürünü Pasife Al"
+                      : "Ürünü Aktif Et"}
+                </button>
+              </form>
+            </>
           )}
         </>
       )}

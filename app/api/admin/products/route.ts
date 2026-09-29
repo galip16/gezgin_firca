@@ -142,7 +142,7 @@ export async function PUT(req: NextRequest) {
       )
     }
 
-    // Mevcut ürünü bul
+    // Güncellenecek ürünü bul
     const { data: existingProduct, error: existingError } =
       await supabaseAdmin
         .from("products")
@@ -230,17 +230,6 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-/**
- * Ürünü aktif / pasif yapar
- *
- * PATCH /api/admin/products
- *
- * Body:
- * {
- *   "id": "ürün-id",
- *   "is_active": false
- * }
- */
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json()
@@ -262,7 +251,7 @@ export async function PATCH(req: NextRequest) {
       )
     }
 
-    // Ürünü kontrol et
+    // Ürünün var olup olmadığını kontrol et
     const { data: existingProduct, error: existingError } =
       await supabaseAdmin
         .from("products")
@@ -305,110 +294,6 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json(
       { error: "Ürün durumu değiştirilirken hata oluştu" },
-      { status: 500 }
-    )
-  }
-}
-
-/**
- * Ürünü kalıcı olarak siler
- *
- * DELETE /api/admin/products?id=ürün-id
- */
-export async function DELETE(req: NextRequest) {
-  try {
-    const { searchParams } = new URL(req.url)
-    const id = searchParams.get("id")
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "Ürün ID gerekli" },
-        { status: 400 }
-      )
-    }
-
-    // Önce ürünü bul
-    const { data: product, error: findError } =
-      await supabaseAdmin
-        .from("products")
-        .select("id, name, image_url")
-        .eq("id", id)
-        .single()
-
-    if (findError || !product) {
-      return NextResponse.json(
-        { error: "Ürün bulunamadı" },
-        { status: 404 }
-      )
-    }
-
-    // Önce database kaydını sil
-    const { error: deleteError } =
-      await supabaseAdmin
-        .from("products")
-        .delete()
-        .eq("id", id)
-
-    if (deleteError) {
-      console.error("Delete Product Error:", deleteError)
-
-      return NextResponse.json(
-        { error: deleteError.message },
-        { status: 500 }
-      )
-    }
-
-    // Ürüne ait görseli Storage'dan da sil
-    if (product.image_url) {
-      try {
-        const imageUrl = new URL(product.image_url)
-
-        const marker = "/storage/v1/object/public/product-images/"
-
-        const markerIndex = imageUrl.pathname.indexOf(marker)
-
-        if (markerIndex !== -1) {
-          const filePath = decodeURIComponent(
-            imageUrl.pathname.substring(
-              markerIndex + marker.length
-            )
-          )
-
-          const { error: storageError } =
-            await supabaseAdmin
-              .storage
-              .from("product-images")
-              .remove([filePath])
-
-          if (storageError) {
-            // DB'deki ürün silindiği için burada işlemi
-            // başarısız saymıyoruz.
-            console.error(
-              "Product image could not be deleted:",
-              storageError
-            )
-          }
-        }
-      } catch (imageError) {
-        console.error(
-          "Image URL parse error:",
-          imageError
-        )
-      }
-    }
-
-    return NextResponse.json({
-      message: "Ürün kalıcı olarak silindi",
-      data: {
-        id: product.id,
-        name: product.name,
-      },
-    })
-  } catch (err) {
-    console.error("DELETE Product Error:", err)
-
-    return NextResponse.json(
-      { error: "Ürün silinirken bilinmeyen hata oluştu" },
       { status: 500 }
     )
   }
